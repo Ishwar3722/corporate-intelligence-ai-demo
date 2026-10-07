@@ -1,22 +1,57 @@
 # Corporate Intelligence AI Demo (Repo 2)
 
-Repo 2 is an independent AI showcase. The initial evidence source is a static local fixture.
-Repo 1 is intentionally not required to run the demo.
-Repo 1 has no implementation dependency in this milestone.
+A focused, evidence-grounded corporate intelligence assistant built with Streamlit and Gemini.
 
-The current milestone implements:
-* deterministic evidence retrieval
-* controlled evidence context construction
-* grounded prompt construction
-* Gemini model generation
-* deterministic citation parsing
-* evidence-ID validation
-* rule-based claim classification
-* lexical evidence-support checking
-* grounding scoring
-* automatic acceptance/rejection
+This repository (Repo 2) serves as an independent, deterministic demonstration of an AI workflow constrained entirely by a provided static knowledge base. It does not integrate with any external Repo 1 data systems.
 
-Please note:
-* Evidence is still provided by the local static fixture.
-* Repo 1 is not required.
-* This is a deterministic MVP grounding validator, not a perfect semantic truth verifier. It uses lexical evidence matching and lightweight clause-level claim heuristics.
+## What the Demo Does
+
+This application answers business questions using *only* the supplied evidence. When a user asks a question, the application:
+1. Retrieves relevant text snippets from a static fixture.
+2. Constructs a controlled prompt incorporating this evidence.
+3. Uses Gemini for synthesis.
+4. Independently validates the generated answer to ensure every claim traces back to the retrieved evidence.
+5. Surfaces transparency and audit details directly in the UI.
+
+## The Evidence-Grounded Pipeline
+
+The architecture is explicitly designed to prevent hallucinations and fabricated claims:
+
+`Question → Deterministic Retrieval → Controlled Context → Grounded Prompt → Gemini → Grounding/Citation Validation → UI`
+
+## Possible Answer States (M9)
+
+To build trust, the UI clearly displays the validation outcome in one of three states:
+
+*   **Grounded / Accepted**: The system successfully generated an answer and validated that every claim is supported by the retrieved evidence.
+*   **Insufficient Evidence**: The retrieval step yielded no relevant evidence from the static database. The system refuses to invoke the LLM and will not generate an answer from outside knowledge.
+*   **Rejected**: The system generated an answer, but the independent validation step found unsupported or uncited claims. The UI transparently presents the rejected answer along with the validation failure details.
+
+## Current Knowledge-Base Limitation
+
+The application uses a **static demo knowledge base** (currently a JSON fixture of sample financial data). It does **not** use live market data, real-time financial APIs, enterprise intelligence databases, or external search tools. 
+
+## How to Run the Demo
+
+1.  **Clone the repository**
+2.  **Create a virtual environment and install dependencies**:
+    ```bash
+    python -m venv venv
+    venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+3.  **Set your `GEMINI_API_KEY` as an environment variable**:
+    ```powershell
+    $env:GEMINI_API_KEY="your_api_key_here"
+    ```
+    *(Security Note: Do not hardcode the API key in the source files. The application expects it to be securely supplied through the environment.)*
+4.  **Run the Streamlit application**:
+    ```bash
+    streamlit run app.py
+    ```
+
+## Example Supported Question
+
+Once the application is running, you can test the "Grounded / Accepted" state by clicking the suggested question or typing:
+
+> "What was Alphabet's revenue in Q4 2023?"
