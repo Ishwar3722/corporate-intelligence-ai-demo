@@ -26,6 +26,7 @@ To build trust, the UI clearly displays the validation outcome in one of three s
 *   **Grounded / Accepted**: The system successfully generated an answer and validated that every claim is supported by the retrieved evidence.
 *   **Insufficient Evidence**: The retrieval step yielded no relevant evidence from the static database. The system refuses to invoke the LLM and will not generate an answer from outside knowledge.
 *   **Rejected**: The system generated an answer, but the independent validation step found unsupported or uncited claims. The UI transparently presents the rejected answer along with the validation failure details.
+*   **Evidence Available (Zero-Cost Fallback)**: The application is designed to remain completely free-tier compatible. If the Gemini synthesis service is temporarily unavailable (e.g., high capacity demand), the application does not fabricate an answer. Instead, it bypasses AI synthesis and directly exposes the retrieved evidence. This fallback is explicitly not an AI-generated answer.
 
 ## Current Knowledge-Base Limitation
 

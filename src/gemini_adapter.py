@@ -8,7 +8,9 @@ class ConfigurationError(Exception):
 
 class GenerationError(Exception):
     """Raised when the model fails to generate a response."""
-    pass
+    def __init__(self, message, status_code=None):
+        super().__init__(message)
+        self.status_code = status_code
 
 def generate(prompt: str) -> str:
     """
@@ -30,6 +32,6 @@ def generate(prompt: str) -> str:
              raise GenerationError("Model returned an empty or invalid response.")
         return response.text
     except errors.APIError as e:
-        raise GenerationError(f"Gemini API Error: {e.message}")
+        raise GenerationError(f"Gemini API Error: {e.message}", status_code=getattr(e, 'code', None))
     except Exception as e:
         raise GenerationError(f"An unexpected error occurred during generation: {str(e)}")

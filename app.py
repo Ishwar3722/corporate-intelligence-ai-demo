@@ -71,20 +71,28 @@ if st.button("Ask", type="primary"):
         prompt = build_prompt(context, question)
         
         # Generate
+        fallback_mode = False
         try:
             raw_answer = generate(prompt)
         except GenerationError as e:
-            st.error(f"Gemini API failure: {e}")
-            st.stop()
+            if getattr(e, 'status_code', None) == 503:
+                fallback_mode = True
+            else:
+                st.error(f"Gemini API failure: {e}")
+                st.stop()
         except Exception as e:
             st.error(f"Unexpected API failure: {e}")
             st.stop()
             
-        # Validate
-        validation_result = validate_answer(raw_answer, retrieved_evidence)
+        if not fallback_mode:
+            # Validate
+            validation_result = validate_answer(raw_answer, retrieved_evidence)
         
     # --- RESULT DISPLAY ---
-    if validation_result.accepted:
+    if fallback_mode:
+        st.warning("### EVIDENCE AVAILABLE — AI SYNTHESIS TEMPORARILY UNAVAILABLE")
+        st.markdown("The AI synthesis service is temporarily unavailable. I will not generate an unsupported answer. The evidence retrieved for your question is shown below.")
+    elif validation_result.accepted:
         # STATE 1: GROUNDED / ACCEPTED
         st.success("### GROUNDED / ACCEPTED")
         st.markdown(f"#### Answer:\n{raw_answer}")

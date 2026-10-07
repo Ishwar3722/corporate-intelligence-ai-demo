@@ -71,3 +71,39 @@ def test_rejected_answer_m9():
         
         markdown_text = "\n".join([m.value for m in at.markdown])
         assert "Unsupported Claims:" in markdown_text
+
+def test_fallback_state_503():
+    """TEST 1: Temporary 503-style GenerationError triggers fallback state"""
+    from src.gemini_adapter import GenerationError
+    at = AppTest.from_file("../app.py", default_timeout=10)
+    
+    with patch("src.gemini_adapter.generate") as mock_generate:
+        mock_generate.side_effect = GenerationError("Gemini API Error", status_code=503)
+        at.run()
+        at.text_input[0].input("What was Alphabet's revenue in Q4 2023?").run()
+        at.button[2].click().run()
+        
+        assert len(at.warning) > 0
+        assert "EVIDENCE AVAILABLE" in at.warning[0].value
+        
+        markdown_text = "\n".join([m.value for m in at.markdown])
+        assert "temporarily unavailable" in markdown_text
+        
+        mock_generate.assert_called_once()
+        assert not any("Gemini API failure" in getattr(s, 'value', '') for s in at.error)
+
+def test_permanent_error_no_fallback():
+    """TEST 2: Permanent error triggers normal error state, not fallback"""
+    from src.gemini_adapter import GenerationError
+    at = AppTest.from_file("../app.py", default_timeout=10)
+    
+    with patch("src.gemini_adapter.generate") as mock_generate:
+        mock_generate.side_effect = GenerationError("Gemini API Error", status_code=400)
+        at.run()
+        at.text_input[0].input("What was Alphabet's revenue in Q4 2023?").run()
+        at.button[2].click().run()
+        
+        assert len(at.error) > 0
+        assert "Gemini API failure" in at.error[0].value
+        assert len(at.warning) == 0
+        mock_generate.assert_called_once()
