@@ -18,7 +18,7 @@ def generate(prompt: str) -> str:
     if not api_key:
         raise ConfigurationError("GEMINI_API_KEY is not set in the environment.")
 
-    model_name = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
+    model_name = os.environ.get("GEMINI_MODEL", "gemini-3.7-flash")
 
     try:
         client = genai.Client(api_key=api_key)

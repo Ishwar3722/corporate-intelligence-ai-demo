@@ -46,6 +46,8 @@ The application uses a **static demo knowledge base** (currently a JSON fixture 
 
 *(Note: Streamlit Community Cloud automatically maps root-level secrets into native OS environment variables. The application reads this securely via the existing environment-variable interface (`os.environ.get`), meaning the actual secret must never be committed.)*
 
+**Default Model:** The application defaults to using `gemini-3.7-flash`. To override this, you can optionally configure `GEMINI_MODEL` as an environment variable or secret.
+
 ## How to Run the Demo
 
 1.  **Clone the repository**
