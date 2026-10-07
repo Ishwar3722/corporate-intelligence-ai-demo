@@ -9,9 +9,14 @@ The current milestone implements:
 * controlled evidence context construction
 * grounded prompt construction
 * Gemini model generation
+* deterministic citation parsing
+* evidence-ID validation
+* rule-based claim classification
+* lexical evidence-support checking
+* grounding scoring
+* automatic acceptance/rejection
 
 Please note:
 * Evidence is still provided by the local static fixture.
 * Repo 1 is not required.
-* Generated responses are not yet post-validated for grounding/citation correctness.
-* M6 will address grounding validation.
+* This is a deterministic MVP grounding validator, not a perfect semantic truth verifier. It uses lexical evidence matching and lightweight clause-level claim heuristics.

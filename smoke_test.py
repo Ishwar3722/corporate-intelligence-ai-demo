@@ -1,9 +1,11 @@
 import json
+import sys
 import os
 from src.retrieval import retrieve
 from src.context_builder import build_context
 from src.prompt_builder import build_prompt
 from src.gemini_adapter import generate
+from src.grounding_validator import validate_answer
 
 def main():
     # 1. Load the evidence fixture.
@@ -34,9 +36,25 @@ def main():
         print("------------------------")
         print(response)
         print("------------------------")
+        
+        # 7. Validate the answer.
+        print("\nM6 GROUNDING VALIDATION")
+        print("------------------------")
+        val_result = validate_answer(response, retrieved_evidence)
+        print(f"Accepted: {val_result.accepted}")
+        print(f"Grounded: {val_result.grounded}")
+        print(f"Grounding Score: {val_result.grounding_score:.2f}")
+        print(f"Reason: {val_result.reason}")
+        print("------------------------")
+        
+        if not val_result.accepted:
+            print("Answer was REJECTED by the M6 validator.")
+            sys.exit(1)
+        else:
+            print("Answer was ACCEPTED by the M6 validator.")
+            
     except Exception as e:
         print(f"Error during Gemini generation: {e}")
-        import sys
         sys.exit(1)
 
 if __name__ == "__main__":
