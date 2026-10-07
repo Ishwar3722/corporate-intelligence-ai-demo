@@ -137,11 +137,14 @@ if st.button("Ask", type="primary"):
         st.text(prompt)
         
     with st.expander("Validation Details"):
-        st.write("#### Claims Analyzed")
-        for claim in validation_result.claims:
-            st.markdown(f"- **{claim.status}**: `{claim.text}` (citations: {claim.citations})")
-        
-        st.write("#### Summary")
-        st.markdown(f"**Invalid Citations:** {validation_result.invalid_citations}")
-        st.markdown(f"**Unsupported Claims:** {[c.text for c in validation_result.unsupported_claims]}")
-        st.markdown(f"**Uncited Claims:** {[c.text for c in validation_result.uncited_claims]}")
+        if fallback_mode:
+            st.write("Skipped because no AI-generated answer was produced.")
+        else:
+            st.write("#### Claims Analyzed")
+            for claim in validation_result.claims:
+                st.markdown(f"- **{claim.status}**: `{claim.text}` (citations: {claim.citations})")
+
+            st.write("#### Summary")
+            st.markdown(f"**Invalid Citations:** {validation_result.invalid_citations}")
+            st.markdown(f"**Unsupported Claims:** {[c.text for c in validation_result.unsupported_claims]}")
+            st.markdown(f"**Uncited Claims:** {[c.text for c in validation_result.uncited_claims]}")

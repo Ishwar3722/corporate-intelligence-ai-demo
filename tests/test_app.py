@@ -91,6 +91,7 @@ def test_fallback_state_503():
         
         mock_generate.assert_called_once()
         assert not any("Gemini API failure" in getattr(s, 'value', '') for s in at.error)
+        assert not at.exception, f"App crashed with exception: {at.exception[0] if at.exception else 'None'}"
 
 def test_permanent_error_no_fallback():
     """TEST 2: Permanent error triggers normal error state, not fallback"""
