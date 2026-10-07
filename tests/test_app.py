@@ -19,6 +19,9 @@ def test_supported_question_m9():
         # button[0] and [1] are suggested questions. button[2] is "Ask"
         at.button[2].click().run()
         
+        # Regression Test: Ensure generate() is called without unsupported keyword arguments
+        assert not mock_generate.call_args.kwargs, "generate() should not be called with keyword arguments like temperature"
+
         expanders = [e.label for e in at.expander]
         assert "Evidence Used" in expanders
         

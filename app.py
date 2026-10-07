@@ -72,7 +72,7 @@ if st.button("Ask", type="primary"):
         
         # Generate
         try:
-            raw_answer = generate(prompt, temperature=0.0)
+            raw_answer = generate(prompt)
         except GenerationError as e:
             st.error(f"Gemini API failure: {e}")
             st.stop()
