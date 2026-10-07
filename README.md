@@ -1,75 +1,210 @@
-# Corporate Intelligence AI Demo (Repo 2)
+# Corporate Intelligence AI
 
-A focused, evidence-grounded corporate intelligence assistant built with Streamlit and Gemini.
+**Evidence-grounded business Q&A that refuses to guess when the available evidence is insufficient.**
 
-This repository (Repo 2) serves as an independent, deterministic demonstration of an AI workflow constrained entirely by a provided static knowledge base. It does not integrate with any external Repo 1 data systems.
+- **Live Demo**: [https://corporate-intelligence-ai.streamlit.app](https://corporate-intelligence-ai.streamlit.app)
+- **GitHub**: [https://github.com/Ishwar3722/corporate-intelligence-ai-demo](https://github.com/Ishwar3722/corporate-intelligence-ai-demo)
 
-## What the Demo Does
+---
 
-This application answers business questions using *only* the supplied evidence. When a user asks a question, the application:
-1. Retrieves relevant text snippets from a static fixture.
-2. Constructs a controlled prompt incorporating this evidence.
-3. Uses Gemini for synthesis.
-4. Independently validates the generated answer to ensure every claim traces back to the retrieved evidence.
-5. Surfaces transparency and audit details directly in the UI.
+## Product Overview
 
-## The Evidence-Grounded Pipeline
+**PROBLEM:**
+LLMs can produce confident answers that are not supported by the underlying evidence. In business and enterprise contexts, this creates a trust and verification problem.
 
-The architecture is explicitly designed to prevent hallucinations and fabricated claims:
+**SOLUTION:**
+This prototype uses an evidence-first pipeline that retrieves relevant evidence, constrains the LLM context, requires citations, validates generated claims, and refuses to answer when sufficient evidence is unavailable.
 
-`Question → Deterministic Retrieval → Controlled Context → Grounded Prompt → Gemini → Grounding/Citation Validation → UI`
+*Note: This is a prototype/demo and not an enterprise production system.*
 
-## Possible Answer States (M9)
+---
 
-To build trust, the UI clearly displays the validation outcome in one of three states:
+## Try the Live Demo
 
-*   **Grounded / Accepted**: The system successfully generated an answer and validated that every claim is supported by the retrieved evidence.
-*   **Insufficient Evidence**: The retrieval step yielded no relevant evidence from the static database. The system refuses to invoke the LLM and will not generate an answer from outside knowledge.
-*   **Rejected**: The system generated an answer, but the independent validation step found unsupported or uncited claims. The UI transparently presents the rejected answer along with the validation failure details.
-*   **Evidence Available (Zero-Cost Fallback)**: The application is designed to remain completely free-tier compatible. If the Gemini synthesis service is temporarily unavailable (e.g., high capacity demand), the application does not fabricate an answer. Instead, it bypasses AI synthesis and directly exposes the retrieved evidence. This fallback is explicitly not an AI-generated answer.
+### The Happy Path
+> **"What was Alphabet's revenue in Q4 2023?"**
 
-## Current Knowledge-Base Limitation
+**Expected behavior:** A grounded answer using the supplied evidence and citation.
 
-The application uses a **static demo knowledge base** (currently a JSON fixture of sample financial data). It does **not** use live market data, real-time financial APIs, enterprise intelligence databases, or external search tools. 
+### The Boundary Test
+> **"Tell me about cars."**
 
-## Live Demo / Deployment
+**Expected behavior:** `INSUFFICIENT EVIDENCE`. The system should not call Gemini when deterministic retrieval finds no supporting evidence.
 
-*(Live Demo: to be deployed)*
+**LLM Transient Failure Handling:**
+If Gemini returns a transient 503 availability error, the application displays:
+`EVIDENCE AVAILABLE — AI SYNTHESIS TEMPORARILY UNAVAILABLE`
+This means the application can show the retrieved evidence without fabricating an AI-generated answer.
 
-1. Deploy the GitHub repository to Streamlit Community Cloud.
-2. Select `main` branch and `app.py`.
-3. Open Advanced settings / Secrets.
-4. Add the root-level secret:
+---
 
-   `GEMINI_API_KEY = "your_api_key_here"`
+## Why This Design
 
-5. Deploy.
+| Problem | Design Response |
+| :--- | :--- |
+| **Hallucination risk** | Evidence-constrained prompting |
+| **Unsupported questions** | Evidence sufficiency gate |
+| **Unsupported factual claims** | Claim/citation validation |
+| **LLM transient failure** | Evidence fallback |
+| **Transparency** | Retrieved evidence/context/prompt/validation shown in UI |
 
-*(Note: Streamlit Community Cloud automatically maps root-level secrets into native OS environment variables. The application reads this securely via the existing environment-variable interface (`os.environ.get`), meaning the actual secret must never be committed.)*
+---
 
-**Default Model:** The application defaults to using `gemini-3.7-flash`. To override this, you can optionally configure `GEMINI_MODEL` as an environment variable or secret.
+## Architecture
 
-## How to Run the Demo
+```text
+User Question
+      ↓
+Deterministic Evidence Retrieval
+      ↓
+(Insufficient Evidence Gate) ----→ (Stop: No AI Generation)
+      ↓
+Controlled Context Construction
+      ↓
+Grounded Prompt
+      ↓
+Gemini
+      ↓
+(503 Fallback) ------------------→ (Display Evidence Only)
+      ↓
+Claim / Citation Validation
+      ↓
+Grounded Answer
+```
 
-1.  **Clone the repository**
-2.  **Create a virtual environment and install dependencies**:
-    ```bash
-    python -m venv venv
-    venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-3.  **Set your `GEMINI_API_KEY` as an environment variable**:
-    ```powershell
-    $env:GEMINI_API_KEY="your_api_key_here"
-    ```
-    *(Security Note: Do not hardcode the API key in the source files. The application expects it to be securely supplied through the environment.)*
-4.  **Run the Streamlit application**:
-    ```bash
-    streamlit run app.py
-    ```
+---
 
-## Example Supported Question
+## How It Works
 
-Once the application is running, you can test the "Grounded / Accepted" state by clicking the suggested question or typing:
+1. **Evidence Retrieval**
+   - deterministic token/keyword overlap
+   - deterministic ranking
+   - zero-score evidence excluded
 
-> "What was Alphabet's revenue in Q4 2023?"
+2. **Context Builder**
+   - constructs bounded evidence blocks
+   - preserves provenance
+   - respects character limit
+
+3. **Prompt Builder**
+   - instructs Gemini to use only supplied evidence
+   - requires evidence citations
+   - prohibits invented facts
+   - requires uncertainty when evidence is insufficient
+
+4. **Gemini Adapter**
+   - isolated LLM interface
+   - Gemini API
+   - environment-based secret handling
+
+5. **Grounding Validator**
+   - extracts claims
+   - checks citations
+   - checks lexical support against supplied evidence
+   - rejects unsupported/uncited/invalid claims
+
+6. **Evidence Sufficiency Gate**
+   - prevents unnecessary LLM calls when retrieval returns no evidence
+
+7. **503 Fallback**
+   - distinguishes model availability from evidence availability
+   - shows retrieved evidence when synthesis is temporarily unavailable
+   - does not fabricate an answer
+
+---
+
+## Answer States
+
+### GROUNDED / ACCEPTED
+Evidence was retrieved and the generated answer passed grounding validation.
+
+### INSUFFICIENT EVIDENCE
+The knowledge base does not contain sufficient evidence. No LLM generation is attempted.
+
+### REJECTED — INSUFFICIENT GROUNDING
+An answer was generated but failed grounding/citation validation.
+
+### EVIDENCE AVAILABLE — AI SYNTHESIS TEMPORARILY UNAVAILABLE
+The evidence exists, but Gemini returned a transient 503. The system shows the evidence rather than fabricating an answer.
+
+---
+
+## Testing & Reliability
+
+- 40 pytest tests currently pass.
+- Tests cover retrieval, context construction, prompt construction, Gemini adapter behavior, grounding/citation validation, UI behavior, evidence sufficiency, permanent API failures, and 503 fallback behavior.
+- The 503 regression test verifies that the fallback path completes without an application exception.
+- The application has been tested on Streamlit Community Cloud.
+
+---
+
+## Tech Stack
+
+- Python
+- Streamlit
+- Google Gemini API / google-genai
+- pytest
+- JSON evidence fixture
+
+---
+
+## Current Scope & Limitations
+
+These are deliberate MVP constraints used to demonstrate the core grounding/control architecture:
+
+- Static JSON evidence fixture
+- Deterministic keyword/token retrieval
+- No vector database
+- No embeddings
+- No live enterprise database
+- No authentication
+- No conversational memory
+- One LLM provider
+- Lexical grounding validation
+- Current evidence set is intentionally small
+
+---
+
+## Future Extensions
+
+*Potential future extensions:*
+
+- embeddings/vector retrieval
+- larger evidence stores
+- approved read-only enterprise evidence integration
+- richer semantic claim validation
+- additional model providers
+- authentication/access controls
+- evaluation datasets and monitoring
+
+---
+
+## Local Setup
+
+1. **Clone the repository**
+2. **Create a virtual environment and install dependencies**:
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+3. **Configure API Key**:
+   ```powershell
+   $env:GEMINI_API_KEY="your_api_key_here"
+   ```
+   *(Optional)* Configure a specific model version:
+   ```powershell
+   $env:GEMINI_MODEL="gemini-3.7-flash"
+   ```
+4. **Run the Streamlit application**:
+   ```bash
+   streamlit run app.py
+   ```
+5. **Run the test suite**:
+   ```bash
+   pytest -q
+   ```
+
+---
+
+*This project demonstrates an evidence-first approach to AI product design: constrain the information available to the model, test whether the generated answer is supported, and fail safely when it is not.*
