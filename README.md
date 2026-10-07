@@ -31,6 +31,21 @@ To build trust, the UI clearly displays the validation outcome in one of three s
 
 The application uses a **static demo knowledge base** (currently a JSON fixture of sample financial data). It does **not** use live market data, real-time financial APIs, enterprise intelligence databases, or external search tools. 
 
+## Live Demo / Deployment
+
+*(Live Demo: to be deployed)*
+
+1. Deploy the GitHub repository to Streamlit Community Cloud.
+2. Select `main` branch and `app.py`.
+3. Open Advanced settings / Secrets.
+4. Add the root-level secret:
+
+   `GEMINI_API_KEY = "your_api_key_here"`
+
+5. Deploy.
+
+*(Note: Streamlit Community Cloud automatically maps root-level secrets into native OS environment variables. The application reads this securely via the existing environment-variable interface (`os.environ.get`), meaning the actual secret must never be committed.)*
+
 ## How to Run the Demo
 
 1.  **Clone the repository**
