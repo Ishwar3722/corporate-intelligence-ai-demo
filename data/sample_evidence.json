@@ -1,0 +1,21 @@
+{
+  "query": "What were Alphabet Inc.'s Q4 2023 revenues?",
+  "evidence": [
+    {
+      "evidence_id": "ev_001",
+      "provider": "Static Demo Data",
+      "source_name": "Alphabet Inc. Q4 2023 Earnings Release",
+      "source_url": "https://abc.xyz/assets/95/eb/9cef90184e09bac553796896c633/2023q4-alphabet-earnings-release.pdf",
+      "source_tier": "Tier1",
+      "source_role": "Primary Financial Document",
+      "headline": "Alphabet Announces Fourth Quarter and Fiscal Year 2023 Results",
+      "raw_snippet": "Revenues of $86.3 billion, up 13% year-over-year, and up 15% in constant currency.",
+      "extracted_facts": [
+        "Alphabet Q4 2023 revenues were $86.3 billion.",
+        "Revenue was up 13% year-over-year."
+      ],
+      "published_at": "2024-01-30T21:00:00Z",
+      "retrieved_at": "2026-10-07T10:07:00Z"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Minimal runtime configuration
+# This is a placeholder for the Python runtime dependencies
+python-dotenv>=1.0.0
+pytest>=8.0.0
+google-genai>=0.2.0
